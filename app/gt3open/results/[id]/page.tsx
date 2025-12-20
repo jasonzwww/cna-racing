@@ -5,10 +5,9 @@ import {
     unwrapIRacingEvent,
     getSession,
     sortByFinishPosition,
-    pos1,
-    msToClock,
     formatLocal,
 } from "@/lib/iracingResult";
+import ResultsTabs from "./ResultsTabs";
 
 type IndexEntry = {
     id: string | number;
@@ -34,10 +33,7 @@ export default async function GT3ResultDetailPage({
     const { id } = await params;
     const routeId = decodeURIComponent(String(id ?? "")).trim();
 
-
     const index = await readJsonFromPublic<IndexEntry[]>("/gt3open/results/index.json");
-
-    // ✅ index.json 里的 id 也统一 trim 成字符串
     const entry = index.find((e) => String(e.id).trim() === routeId);
 
     if (!entry) {
@@ -64,7 +60,6 @@ export default async function GT3ResultDetailPage({
         );
     }
 
-    // ✅ 兼容 iRacing JSON 两种顶层格式（有无 data）
     const json = await readJsonFromPublic<any>(entry.file);
     const data = unwrapIRacingEvent(json);
 
@@ -74,9 +69,7 @@ export default async function GT3ResultDetailPage({
                 <div className="mx-auto max-w-6xl px-6 py-12">
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
                         <div className="text-lg font-semibold">Invalid result file</div>
-                        <p className="mt-2 text-zinc-300">
-                            读取到了文件但解析不到 iRacing 结果结构：{entry.file}
-                        </p>
+                        <p className="mt-2 text-zinc-300">解析不到 iRacing 结果结构：{entry.file}</p>
                         <Link
                             href="/gt3open/results"
                             className="mt-5 inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-zinc-950 hover:opacity-90"
@@ -89,8 +82,9 @@ export default async function GT3ResultDetailPage({
         );
     }
 
-    const trackName = data?.track?.track_name ?? entry.track ?? "Unknown Track";
-    const layout = data?.track?.config_name ?? entry.layout ?? "Layout";
+    // ✅ 赛道名优先 index.json 的 track / layout
+    const trackName = entry.track?.trim() || data?.track?.track_name || "Unknown Track";
+    const layout = entry.layout?.trim() || data?.track?.config_name || "Layout";
     const series = data?.series_name ?? "GT3 Open";
     const start = data?.start_time;
 
@@ -103,6 +97,7 @@ export default async function GT3ResultDetailPage({
     return (
         <main className="min-h-screen bg-zinc-950 text-zinc-100">
             <div className="mx-auto max-w-7xl px-6 py-10">
+                {/* Header */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                     <div>
                         <div className="text-xs tracking-widest text-zinc-400">{series}</div>
@@ -125,6 +120,7 @@ export default async function GT3ResultDetailPage({
                     </Link>
                 </div>
 
+                {/* Cover */}
                 {entry.cover && (
                     <div className="mt-8 overflow-hidden rounded-3xl border border-white/10">
                         <div
@@ -134,78 +130,16 @@ export default async function GT3ResultDetailPage({
                     </div>
                 )}
 
-                <SectionTable title="QUALIFY" subtitle={quali?.simsession_type_name ?? "Qualifying"} rows={qualiRows} />
-                <SectionTable title="RACE" subtitle={race?.simsession_type_name ?? "Race"} rows={raceRows} showInterval />
+                {/* Tabs (client) */}
+                <ResultsTabs
+                    qualiTitle="QUALIFY"
+                    raceTitle="RACE"
+                    qualiSubtitle={quali?.simsession_type_name ?? "Qualifying"}
+                    raceSubtitle={race?.simsession_type_name ?? "Race"}
+                    qualiRows={qualiRows}
+                    raceRows={raceRows}
+                />
             </div>
         </main>
-    );
-}
-
-function SectionTable({
-                          title,
-                          subtitle,
-                          rows,
-                          showInterval,
-                      }: {
-    title: string;
-    subtitle: string;
-    rows: any[];
-    showInterval?: boolean;
-}) {
-    return (
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                <div>
-                    <div className="text-lg font-semibold text-zinc-100">{title}</div>
-                    <div className="text-sm text-zinc-400">{subtitle}</div>
-                </div>
-                <div className="text-sm text-zinc-400">Rows: {rows.length}</div>
-            </div>
-
-            <div className="overflow-auto">
-                <table className="min-w-[1000px] w-full text-sm">
-                    <thead className="sticky top-0 bg-zinc-950/95 backdrop-blur border-b border-white/10">
-                    <tr>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Pos</th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Driver</th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Car</th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Laps</th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Inc</th>
-                        {showInterval && (
-                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Interval</th>
-                        )}
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Best Lap</th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">Reason</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    {rows.map((r: any) => (
-                        <tr
-                            key={`${r.cust_id}-${r.finish_position ?? r.position}`}
-                            className="border-b border-white/5 hover:bg-white/5"
-                        >
-                            <td className="px-4 py-3 text-zinc-200 font-semibold">{pos1(r)}</td>
-                            <td className="px-4 py-3 text-zinc-200">{r.display_name ?? "—"}</td>
-                            <td className="px-4 py-3 text-zinc-200">{r.car_name ?? "—"}</td>
-                            <td className="px-4 py-3 text-zinc-200">{r.laps_complete ?? "—"}</td>
-                            <td className="px-4 py-3 text-zinc-200">{r.incidents ?? "—"}</td>
-                            {showInterval && (
-                                <td className="px-4 py-3 text-zinc-200 font-mono">
-                                    {r.interval === 0 ? "WIN" : msToClock(r.interval)}
-                                </td>
-                            )}
-                            <td className="px-4 py-3 text-zinc-200 font-mono">{msToClock(r.best_lap_time)}</td>
-                            <td className="px-4 py-3 text-zinc-200">{r.reason_out ?? "—"}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {rows.length === 0 && (
-                <div className="px-6 py-6 text-zinc-300">No results found in this session.</div>
-            )}
-        </div>
     );
 }
