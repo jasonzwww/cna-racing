@@ -30,24 +30,24 @@ export default function GT3OpenOverviewPage() {
     return (
         <main className="min-h-screen bg-zinc-950 text-zinc-100">
             {/* HERO */}
-            <section className="relative overflow-hidden border-b border-white/10">
-                {/* background image */}
+            <section className="relative min-h-[70vh] overflow-hidden border-b border-white/10">
+                {/* Background image */}
                 <div
                     className="absolute inset-0 bg-cover bg-[position:50%_70%]"
                     style={{ backgroundImage: "url('/lineup.png')" }}
                 />
 
-                {/* dark overlay */}
-                <div className="absolute inset-0 bg-black/60" />
+                {/* Dark overlay (不要太黑) */}
+                <div className="absolute inset-0 bg-black/40" />
 
-                {/* broadcast glow */}
+                {/* Broadcast glow */}
                 <div className="absolute inset-0 opacity-35 [background:radial-gradient(70%_60%_at_50%_10%,rgba(255,255,255,0.22),transparent_60%)]" />
 
-                {/* grid texture */}
+                {/* Grid texture */}
                 <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.2)_1px,transparent_1px)] [background-size:60px_60px]" />
 
                 {/* CONTENT */}
-                <div className="relative mx-auto max-w-6xl px-6 py-16 md:py-24">
+                <div className="relative z-10 mx-auto max-w-6xl px-6 py-16 md:py-24">
                     <div className="grid gap-8 md:grid-cols-12 md:items-start">
                         {/* LEFT */}
                         <div className="md:col-span-7">
