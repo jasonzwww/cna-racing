@@ -127,13 +127,6 @@ export default async function GT3OpenStandingsPage() {
                     <div>
                         <div className="text-xs tracking-widest text-zinc-400">CNA GT3 OPEN</div>
                         <h1 className="mt-2 text-3xl font-semibold tracking-tight">Standings 积分榜</h1>
-                        <p className="mt-2 text-zinc-300">
-                            自动从服务器结果 JSON 计算积分（无需手改）。
-                        </p>
-                    </div>
-
-                    <div className="text-sm text-zinc-400">
-                        Points table: {defaultPoints.pointsByPos.slice(1, 6).join("/")}… (editable in lib/points.ts)
                     </div>
                 </div>
 

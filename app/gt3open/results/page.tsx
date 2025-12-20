@@ -134,14 +134,8 @@ export default async function GT3ResultsListPage() {
                         <h1 className="mt-2 text-4xl font-semibold tracking-tight">
                             Results <span className="opacity-90">结果</span>
                         </h1>
-                        <p className="mt-3 text-sm text-zinc-300">
-                            服务器结果库（public JSON）。所有用户、所有设备都能看到。
-                        </p>
                     </div>
 
-                    <div className="text-xs text-zinc-400">
-                        Add new event = 放一个 JSON + index.json 加一条
-                    </div>
                 </div>
 
                 {/* Grid */}
