@@ -34,7 +34,7 @@ export default function GT3OpenOverviewPage() {
                 {/* background image */}
                 <div
                     className="absolute inset-0 bg-cover bg-[position:50%_70%]"
-                    style={{ backgroundImage: "url('/LineUp.PNG')" }}
+                    style={{ backgroundImage: "url('/lineup.png')" }}
                 />
 
                 {/* dark overlay */}
