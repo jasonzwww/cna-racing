@@ -1,174 +1,61 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { pos1, msToClock } from "@/lib/iracingResult";
+import { msToClock } from "@/lib/iracingResult";
 
-function toNum(v: any): number | null {
+type Props = {
+    qualiTitle: string;
+    raceTitle: string;
+    qualiSubtitle: string;
+    raceSubtitle: string;
+    qualiRows: any[];
+    raceRows: any[];
+};
+
+function pos1(r: any) {
+    const v =
+        r?.finish_position ??
+        r?.position ??
+        r?.class_position ??
+        r?.fin_pos ??
+        r?.pos;
     const n = Number(v);
-    return Number.isFinite(n) ? n : null;
+    return Number.isFinite(n) ? n + 1 : "—"; // iRacing 常见是 0-based
 }
 
-/**
- * iRacing results 常见时间单位：
- * - interval / class_interval：tick = 1/10000 秒
- * - best_lap_time：很多文件也是 tick（但也可能已经是 ms）
- *
- * 我们用一个「阈值」做兼容：
- * - 如果数值非常大（> 1,000,000），几乎肯定是 tick（例如 2:18.334 ≈ 1,383,340 ticks）
- * - 否则当作 ms（例如 138,334ms）
- */
-function maybeTickToMs(x: number) {
-    // tick -> ms : ticks / 10
-    return x > 1_000_000 ? Math.round(x / 10) : x;
+/** iRacing ticks: 1/10000 秒 = 0.1ms */
+function ticksToMs(ticks: number) {
+    return Math.round(ticks / 10);
 }
 
-/** interval 显示：WIN / +gap / — */
-function intervalText(row: any) {
-    const ci = toNum(row?.class_interval);
-    const iv = toNum(row?.interval);
+/** interval：优先 class_interval，其次 interval；WIN/—/+gap */
+function formatInterval(row: any) {
+    if (!row) return "—";
+
+    const ci = typeof row.class_interval === "number" ? row.class_interval : null;
+    const iv = typeof row.interval === "number" ? row.interval : null;
     const ticks = ci ?? iv;
 
-    if (ticks === null) return "—";
+    if (ticks === null || ticks === undefined) return "—";
     if (ticks === -1) return "—";
     if (ticks === 0) return "WIN";
 
-    const ms = maybeTickToMs(ticks);
+    const ms = ticksToMs(Math.abs(ticks));
     return `+${msToClock(ms)}`;
 }
 
-/** points：自动找字段 */
-function pointsText(row: any) {
-    const p =
-        row?.champ_points ??
-        row?.points ??
-        row?.agg_points ??
-        row?.champ_pts ??
-        row?.agg_pts;
-
-    if (p === null || p === undefined || p === "") return "—";
-    return String(p);
+/** best lap：iRacing best_lap_time 也是 ticks（不是毫秒） */
+function formatBestLap(row: any) {
+    const t = row?.best_lap_time;
+    if (typeof t !== "number" || t <= 0) return "—";
+    return msToClock(ticksToMs(t));
 }
 
-/** best lap：返回 ms（兼容 tick / ms） */
-function bestLapMs(row: any): number | null {
-    const raw = toNum(row?.best_lap_time);
-    if (raw === null) return null;
-    if (raw <= 0) return null;
-
-    return maybeTickToMs(raw);
-}
-
-function SectionTable({
-                          subtitle,
-                          rows,
-                      }: {
-    subtitle: string;
-    rows: any[];
-}) {
-    // 找 session 内最快 best lap
-    const fastest = useMemo(() => {
-        const vals = rows
-            .map(bestLapMs)
-            .filter((x): x is number => typeof x === "number");
-        if (vals.length === 0) return null;
-        return Math.min(...vals);
-    }, [rows]);
-
-    return (
-        <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                <div className="text-sm text-zinc-400">{subtitle}</div>
-                <div className="text-sm text-zinc-400">Rows: {rows.length}</div>
-            </div>
-
-            <div className="overflow-auto">
-                <table className="min-w-[1000px] w-full text-sm">
-                    <thead className="sticky top-0 bg-zinc-950/95 backdrop-blur border-b border-white/10">
-                    <tr>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Pos
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Driver
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Car
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Laps
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Inc
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Interval
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Best Lap
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-zinc-200">
-                            Points
-                        </th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    {rows.map((r: any) => {
-                        const bl = bestLapMs(r);
-                        const isFastest = fastest !== null && bl !== null && bl === fastest;
-
-                        return (
-                            <tr
-                                key={`${r.cust_id}-${r.finish_position ?? r.position}`}
-                                className="border-b border-white/5 hover:bg-white/5"
-                            >
-                                <td className="px-4 py-3 text-zinc-200 font-semibold">
-                                    {pos1(r)}
-                                </td>
-                                <td className="px-4 py-3 text-zinc-200">
-                                    {r.display_name ?? "—"}
-                                </td>
-                                <td className="px-4 py-3 text-zinc-200">{r.car_name ?? "—"}</td>
-                                <td className="px-4 py-3 text-zinc-200">
-                                    {r.laps_complete ?? "—"}
-                                </td>
-                                <td className="px-4 py-3 text-zinc-200">
-                                    {r.incidents ?? "—"}
-                                </td>
-
-                                {/* ✅ interval tick -> ms */}
-                                <td className="px-4 py-3 text-zinc-200 font-mono">
-                                    {intervalText(r)}
-                                </td>
-
-                                {/* ✅ best lap tick -> ms, fastest purple */}
-                                <td
-                                    className={[
-                                        "px-4 py-3 font-mono",
-                                        isFastest ? "text-purple-400 font-extrabold" : "text-zinc-200",
-                                    ].join(" ")}
-                                >
-                                    {bl ? msToClock(bl) : "—"}
-                                </td>
-
-                                {/* ✅ points */}
-                                <td className="px-4 py-3 text-zinc-200 font-semibold">
-                                    {pointsText(r)}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>
-            </div>
-
-            {rows.length === 0 && (
-                <div className="px-6 py-6 text-zinc-300">
-                    No results found in this session.
-                </div>
-            )}
-        </div>
-    );
+/** points：优先 champ_points，其次 points/agg_pts 等 */
+function getPoints(row: any) {
+    const cand = row?.champ_points ?? row?.points ?? row?.agg_pts ?? row?.agg_points;
+    const n = Number(cand);
+    return Number.isFinite(n) ? n : 0;
 }
 
 export default function ResultsTabs({
@@ -178,57 +65,130 @@ export default function ResultsTabs({
                                         raceSubtitle,
                                         qualiRows,
                                         raceRows,
-                                    }: {
-    qualiTitle: string;
-    raceTitle: string;
-    qualiSubtitle: string;
-    raceSubtitle: string;
-    qualiRows: any[];
-    raceRows: any[];
-}) {
-    const [tab, setTab] = useState<"race" | "quali">(
-        raceRows?.length ? "race" : "quali"
-    );
+                                    }: Props) {
+    const [tab, setTab] = useState<"RACE" | "QUALIFY">("RACE");
 
-    const activeRows = tab === "race" ? raceRows : qualiRows;
-    const activeSubtitle = tab === "race" ? raceSubtitle : qualiSubtitle;
-    const activeTitle = tab === "race" ? raceTitle : qualiTitle;
+    const rows = tab === "RACE" ? raceRows : qualiRows;
+    const subtitle = tab === "RACE" ? raceSubtitle : qualiSubtitle;
+    const title = tab === "RACE" ? raceTitle : qualiTitle;
+
+    // 找最快圈（用于紫色）
+    const fastestBestLapMs = useMemo(() => {
+        let best = Infinity;
+        for (const r of rows ?? []) {
+            const t = r?.best_lap_time;
+            if (typeof t === "number" && t > 0) {
+                const ms = ticksToMs(t);
+                if (ms > 0 && ms < best) best = ms;
+            }
+        }
+        return Number.isFinite(best) ? best : null;
+    }, [rows]);
 
     return (
         <div className="mt-10">
-            <div className="flex items-center justify-between gap-4">
-                <div>
-                    <div className="text-lg font-semibold text-zinc-100">{activeTitle}</div>
-                    <div className="text-sm text-zinc-400">{activeSubtitle}</div>
-                </div>
-
-                <div className="inline-flex rounded-2xl border border-white/10 bg-white/5 p-1">
-                    <button
-                        onClick={() => setTab("race")}
-                        className={[
-                            "px-4 py-2 rounded-xl text-sm font-semibold transition",
-                            tab === "race"
-                                ? "bg-white text-zinc-950"
-                                : "text-zinc-200 hover:bg-white/10",
-                        ].join(" ")}
-                    >
-                        Race
-                    </button>
-                    <button
-                        onClick={() => setTab("quali")}
-                        className={[
-                            "px-4 py-2 rounded-xl text-sm font-semibold transition",
-                            tab === "quali"
-                                ? "bg-white text-zinc-950"
-                                : "text-zinc-200 hover:bg-white/10",
-                        ].join(" ")}
-                    >
-                        Qualify
-                    </button>
-                </div>
+            {/* Tabs */}
+            <div className="flex items-center justify-end gap-2">
+                <button
+                    onClick={() => setTab("RACE")}
+                    className={[
+                        "rounded-xl px-4 py-2 text-sm font-semibold border transition",
+                        tab === "RACE"
+                            ? "bg-white text-zinc-950 border-white"
+                            : "bg-white/5 text-zinc-200 border-white/15 hover:bg-white/10",
+                    ].join(" ")}
+                >
+                    Race
+                </button>
+                <button
+                    onClick={() => setTab("QUALIFY")}
+                    className={[
+                        "rounded-xl px-4 py-2 text-sm font-semibold border transition",
+                        tab === "QUALIFY"
+                            ? "bg-white text-zinc-950 border-white"
+                            : "bg-white/5 text-zinc-200 border-white/15 hover:bg-white/10",
+                    ].join(" ")}
+                >
+                    Qualify
+                </button>
             </div>
 
-            <SectionTable subtitle={activeSubtitle} rows={activeRows} />
+            {/* Table */}
+            <div className="mt-4 rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                    <div>
+                        <div className="text-lg font-semibold text-zinc-100">{title}</div>
+                        <div className="text-sm text-zinc-400">{subtitle}</div>
+                    </div>
+                    <div className="text-sm text-zinc-400">Rows: {rows?.length ?? 0}</div>
+                </div>
+
+                <div className="overflow-auto">
+                    <table className="min-w-[1000px] w-full text-sm">
+                        <thead className="sticky top-0 bg-zinc-950/95 backdrop-blur border-b border-white/10">
+                        <tr>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Pos</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Driver</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Car</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Laps</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Inc</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Interval</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Best Lap</th>
+                            <th className="px-4 py-3 text-left font-semibold text-zinc-200">Points</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {(rows ?? []).map((r: any) => {
+                            const bestLapTicks = r?.best_lap_time;
+                            const bestLapMs =
+                                typeof bestLapTicks === "number" && bestLapTicks > 0
+                                    ? ticksToMs(bestLapTicks)
+                                    : null;
+
+                            const isFastest =
+                                fastestBestLapMs !== null &&
+                                bestLapMs !== null &&
+                                bestLapMs === fastestBestLapMs;
+
+                            return (
+                                <tr
+                                    key={`${r.cust_id ?? r.display_name}-${r.finish_position ?? r.position ?? Math.random()}`}
+                                    className="border-b border-white/5 hover:bg-white/5"
+                                >
+                                    <td className="px-4 py-3 text-zinc-200 font-semibold">{pos1(r)}</td>
+                                    <td className="px-4 py-3 text-zinc-200">{r.display_name ?? "—"}</td>
+                                    <td className="px-4 py-3 text-zinc-200">{r.car_name ?? "—"}</td>
+                                    <td className="px-4 py-3 text-zinc-200">{r.laps_complete ?? "—"}</td>
+                                    <td className="px-4 py-3 text-zinc-200">{r.incidents ?? "—"}</td>
+
+                                    <td className="px-4 py-3 text-zinc-200 font-mono">
+                                        {formatInterval(r)}
+                                    </td>
+
+                                    <td
+                                        className={[
+                                            "px-4 py-3 font-mono",
+                                            isFastest ? "text-violet-400 font-semibold" : "text-zinc-200",
+                                        ].join(" ")}
+                                    >
+                                        {formatBestLap(r)}
+                                    </td>
+
+                                    <td className="px-4 py-3 text-zinc-200 font-semibold">
+                                        {tab === "RACE" ? getPoints(r) : 0}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+
+                {(rows?.length ?? 0) === 0 && (
+                    <div className="px-6 py-6 text-zinc-300">No results found in this session.</div>
+                )}
+            </div>
         </div>
     );
 }
