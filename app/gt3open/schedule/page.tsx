@@ -1,21 +1,9 @@
 import Link from "next/link";
 import { gt3open, GT3Race } from "@/data/gt3open";
+import LocalTime from "@/components/LocalTime";
 
 function isPast(r: GT3Race, now: Date) {
     return new Date(r.start).getTime() < now.getTime();
-}
-
-function formatStart(iso: string) {
-    const d = new Date(iso);
-    // Using user's browser locale formatting (works well for Canada)
-    return d.toLocaleString(undefined, {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
 }
 
 export default function GT3SchedulePage() {
@@ -25,8 +13,7 @@ export default function GT3SchedulePage() {
         .slice()
         .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-    const nextRace =
-        races.find((r) => !isPast(r, now)) ?? null;
+    const nextRace = races.find((r) => !isPast(r, now)) ?? null;
 
     return (
         <main className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -40,7 +27,7 @@ export default function GT3SchedulePage() {
                             Schedule 赛程
                         </h1>
                         <p className="mt-2 text-zinc-300">
-                            已结束的轮次会自动变灰；下一场会自动高亮。
+                            已结束的轮次会自动变灰；下一场会自动高亮。时间会按用户所在时区自动显示。
                         </p>
                     </div>
 
@@ -55,14 +42,12 @@ export default function GT3SchedulePage() {
                 {/* Next race highlight */}
                 {nextRace && (
                     <div className="mt-8 rounded-2xl border border-red-500/40 bg-white/5 p-6">
-                        <div className="text-xs tracking-widest text-zinc-400">
-                            NEXT EVENT
-                        </div>
+                        <div className="text-xs tracking-widest text-zinc-400">NEXT EVENT</div>
                         <div className="mt-1 text-xl font-semibold">
                             R{nextRace.round} · {nextRace.track}
                         </div>
                         <div className="mt-2 text-sm text-zinc-300">
-                            {formatStart(nextRace.start)}
+                            <LocalTime iso={nextRace.start} />
                             {nextRace.format ? ` · ${nextRace.format}` : ""}
                             {nextRace.note ? ` · ${nextRace.note}` : ""}
                         </div>
@@ -91,11 +76,9 @@ export default function GT3SchedulePage() {
                                             <div className="text-xs tracking-widest text-zinc-400">
                                                 ROUND {r.round}
                                             </div>
-                                            <div className="mt-1 text-lg font-semibold">
-                                                {r.track}
-                                            </div>
+                                            <div className="mt-1 text-lg font-semibold">{r.track}</div>
                                             <div className="mt-2 text-sm text-zinc-300">
-                                                {formatStart(r.start)}
+                                                <LocalTime iso={r.start} />
                                                 {r.format ? ` · ${r.format}` : ""}
                                                 {r.note ? ` · ${r.note}` : ""}
                                             </div>
@@ -132,9 +115,13 @@ export default function GT3SchedulePage() {
                 <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-zinc-300">
                     <div className="font-semibold text-zinc-100">如何添加新赛程</div>
                     <div className="mt-2">
-                        打开 <code className="rounded bg-white/10 px-1.5 py-0.5">data/gt3open.ts</code>，
-                        在 <code className="rounded bg-white/10 px-1.5 py-0.5">races</code> 数组里新增一项即可。
-                        建议使用带时区的 ISO 时间，例如：<code className="rounded bg-white/10 px-1.5 py-0.5">2026-02-21T20:00:00-05:00</code>
+                        打开{" "}
+                        <code className="rounded bg-white/10 px-1.5 py-0.5">data/gt3open.ts</code>，
+                        在{" "}
+                        <code className="rounded bg-white/10 px-1.5 py-0.5">races</code>{" "}
+                        数组里新增一项即可。你现在用的 UTC 格式也很好，比如：{" "}
+                        <code className="rounded bg-white/10 px-1.5 py-0.5">2026-01-25T03:59:00Z</code>
+                        （会自动换算到用户本地时区）。
                     </div>
                 </div>
             </section>
