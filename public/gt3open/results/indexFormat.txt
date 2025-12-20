@@ -1,0 +1,9 @@
+  {
+  "id": "81610301",
+  "title": "GT3 Open · Round 0 · Daytona",
+  "date": "2025-12-08",
+  "track": "Daytona International Speedway",
+  "layout": "Road Course",
+  "file": "/gt3open/results/81610301.json",
+  "cover": "/gt3open/covers/spa.png"
+  }
