@@ -40,6 +40,7 @@ const CAR_LOGO_MAP: { key: string; src: string; alt: string }[] = [
     { key: "mclaren", src: "/cars/mclaren.png", alt: "McLaren" },
     { key: "chevrolet", src: "/cars/chevrolet.png", alt: "Chevrolet" },
     { key: "ford", src: "/cars/ford.png", alt: "Ford" },
+    { key: "aston", src: "/cars/aston.png", alt: "Aston" },
     // 继续加...
 ];
 
