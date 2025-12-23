@@ -47,6 +47,7 @@ export function TopNav() {
                 subnav: [
                     { label: "Overview", href: "/rookie" },
                     { label: "Schedule 赛程", href: "/rookie/schedule" },
+                    { label: "Standings 积分", href: "/rookie/standings" },
                     { label: "Results 结果", href: "/rookie/results" },
                     { label: "Rules 规则", href: "/rookie/rules" },
                 ],
