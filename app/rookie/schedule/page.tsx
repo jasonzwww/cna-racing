@@ -29,6 +29,7 @@ export default function RookieSchedulePage() {
     return (
         <main className="min-h-screen bg-zinc-950 text-zinc-100">
             <section className="mx-auto max-w-6xl px-6 py-12">
+                {/* Header */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                     <div>
                         <div className="text-xs tracking-widest text-zinc-400">
@@ -48,6 +49,7 @@ export default function RookieSchedulePage() {
                     </Link>
                 </div>
 
+                {/* Next race */}
                 {nextRace && (
                     <div className="mt-8 rounded-2xl border border-red-500/40 bg-white/5 p-6">
                         <div className="text-xs tracking-widest text-zinc-400">NEXT EVENT</div>
@@ -62,6 +64,7 @@ export default function RookieSchedulePage() {
                     </div>
                 )}
 
+                {/* Race list */}
                 <div className="mt-8 grid gap-4">
                     {races.map((r) => {
                         const past = isPast(r, now);
@@ -72,7 +75,9 @@ export default function RookieSchedulePage() {
                                 key={r.round}
                                 className={[
                                     "rounded-2xl border bg-white/5 p-6 transition",
-                                    past ? "border-white/10 opacity-45" : "border-white/15 hover:bg-white/10",
+                                    past
+                                        ? "border-white/10 opacity-45"
+                                        : "border-white/15 hover:bg-white/10",
                                     isNext ? "ring-1 ring-red-500/35" : "",
                                 ].join(" ")}
                             >
@@ -80,7 +85,9 @@ export default function RookieSchedulePage() {
                                     <div className="flex items-start gap-4">
                                         <div className="mt-1 h-2 w-2 rounded-full bg-red-500/90" />
                                         <div>
-                                            <div className="text-xs tracking-widest text-zinc-400">ROUND {r.round}</div>
+                                            <div className="text-xs tracking-widest text-zinc-400">
+                                                ROUND {r.round}
+                                            </div>
                                             <div className="mt-1 text-lg font-semibold">{r.track}</div>
                                             <div className="mt-2 text-sm text-zinc-300">
                                                 {formatStart(r.start)}
@@ -90,11 +97,9 @@ export default function RookieSchedulePage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
-                    <span className="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold">
-                      {past ? "Finished" : "Upcoming"}
-                    </span>
-                                    </div>
+                                    <span className="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold">
+                    {past ? "Finished" : "Upcoming"}
+                  </span>
                                 </div>
                             </div>
                         );
