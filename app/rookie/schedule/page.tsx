@@ -94,16 +94,6 @@ export default function RookieSchedulePage() {
                     <span className="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold">
                       {past ? "Finished" : "Upcoming"}
                     </span>
-
-                                        {"broadcast" in r && r.broadcast && (
-                                            <a
-                                                href={r.broadcast}
-                                                className="rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950"
-                                            >
-                                                Watch
-                                            </a>
-                                        )}
-
                                     </div>
                                 </div>
                             </div>
