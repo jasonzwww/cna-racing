@@ -108,9 +108,6 @@ export default async function RookieStandingsPage() {
                         <h1 className="mt-2 text-4xl font-semibold tracking-tight">
                             Standings <span className="opacity-90">积分</span>
                         </h1>
-                        <p className="mt-3 text-sm text-zinc-300">
-                            自动从每场比赛 JSON 读取 points 并汇总（字段名不同也尽量兼容）。
-                        </p>
                     </div>
 
                     <Link
