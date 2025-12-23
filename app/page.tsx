@@ -50,6 +50,16 @@ export default function MainHomePage() {
                                 </div>
                             </Link>
 
+                            <Link
+                                href="/rookie"
+                                className="rounded-2xl border border-white/20 bg-white/10 p-6 hover:bg-white/20 transition"
+                            >
+                                <div className="text-lg font-semibold text-white">CNA 新手赛</div>
+                                <div className="mt-2 text-sm text-zinc-200">入门系列 · 更友好的节奏 · 更清晰的规则</div>
+                                <div className="mt-4 text-sm font-semibold text-white">Enter →</div>
+                            </Link>
+
+
                             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 opacity-60">
                                 <div className="text-lg font-semibold">
                                     More Series
