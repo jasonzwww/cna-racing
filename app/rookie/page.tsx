@@ -33,9 +33,9 @@ export default function RookieOverviewPage() {
             <section className="relative overflow-hidden border-b border-white/10">
                 <div
                     className="absolute inset-0 bg-cover bg-[position:50%_70%]"
-                    style={{ backgroundImage: "url('/lineup.png')" }}
+                    style={{ backgroundImage: "url('/mx5.jpg')" }}
                 />
-                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute inset-0 opacity-35 [background:radial-gradient(70%_60%_at_50%_10%,rgba(255,255,255,0.22),transparent_60%)]" />
                 <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.2)_1px,transparent_1px)] [background-size:60px_60px]" />
 
@@ -54,7 +54,7 @@ export default function RookieOverviewPage() {
                             <p className="mt-3 text-lg text-zinc-200">{rookie.seasonName}</p>
 
                             <p className="mt-5 max-w-2xl text-zinc-200 leading-relaxed">
-                                面向新手与回归车手的入门系列赛：节奏更友好、规则更清晰、强调安全与学习。
+                                面向新手与回归车手的入门系列赛：节奏更友好、关闭车损、强调安全与学习。
                             </p>
 
                             <div className="mt-8 flex flex-wrap gap-3">

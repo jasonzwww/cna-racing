@@ -1,0 +1,10 @@
+[
+  {
+    "id": "81610301",
+    "title": "R1 Navarra",
+    "track": "Circuito de Navarra 纳瓦拉",
+    "layout": "Grand Prix",
+    "file": "/rookie/results/81610301.json",
+    "cover": "/rookie/covers/navarra.png"
+  }
+]
