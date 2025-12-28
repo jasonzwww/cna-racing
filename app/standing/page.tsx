@@ -1,20 +1,22 @@
+import Link from "next/link";
 import { standingsData } from "@/lib/siteData";
 
 type StandingPageProps = {
-    searchParams?: {
+    searchParams?: Promise<{
         series?: string;
-    };
+    }>;
 };
 
-export default function StandingPage({ searchParams }: StandingPageProps) {
+export default async function StandingPage({ searchParams }: StandingPageProps) {
+    const resolvedSearchParams = (await searchParams) ?? {};
     const seriesList = Object.entries(standingsData).map(([key, value]) => ({
         key,
         ...value,
     }));
 
     const filteredSeries =
-        searchParams?.series === "gt3open" || searchParams?.series === "rookie"
-            ? seriesList.filter((series) => series.key === searchParams.series)
+        resolvedSearchParams.series === "gt3open" || resolvedSearchParams.series === "rookie"
+            ? seriesList.filter((series) => series.key === resolvedSearchParams.series)
             : seriesList;
 
     return (
@@ -29,6 +31,32 @@ export default function StandingPage({ searchParams }: StandingPageProps) {
                 </div>
 
                 <div className="mt-10 grid gap-8">
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="text-xs tracking-widest text-zinc-400">GT3 OPEN</div>
+                            <div className="mt-2 text-sm text-zinc-200">
+                                进入 GT3 Open 积分榜（含队伍统计与详细数据）。
+                            </div>
+                            <Link
+                                href="/gt3open/standings"
+                                className="mt-3 inline-flex rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-zinc-100 hover:bg-white/10"
+                            >
+                                打开 GT3 Open 积分榜
+                            </Link>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="text-xs tracking-widest text-zinc-400">ROOKIE</div>
+                            <div className="mt-2 text-sm text-zinc-200">
+                                进入新手赛积分榜（含比赛场次与名次统计）。
+                            </div>
+                            <Link
+                                href="/rookie/standings"
+                                className="mt-3 inline-flex rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-zinc-100 hover:bg-white/10"
+                            >
+                                打开 新手赛 积分榜
+                            </Link>
+                        </div>
+                    </div>
                     {filteredSeries.map((series) => (
                         <div key={series.title} className="rounded-3xl border border-white/10 bg-white/5 p-6">
                             <div className="text-lg font-semibold text-white">{series.title}</div>

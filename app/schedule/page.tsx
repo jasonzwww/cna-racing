@@ -1,15 +1,17 @@
+import Link from "next/link";
 import { ScheduleClient } from "@/app/schedule/ScheduleClient";
 
 type SchedulePageProps = {
-    searchParams?: {
+    searchParams?: Promise<{
         series?: string;
-    };
+    }>;
 };
 
-export default function SchedulePage({ searchParams }: SchedulePageProps) {
+export default async function SchedulePage({ searchParams }: SchedulePageProps) {
+    const resolvedSearchParams = (await searchParams) ?? {};
     const initialFilter: "all" | "gt3open" | "rookie" =
-        searchParams?.series === "gt3open" || searchParams?.series === "rookie"
-            ? searchParams.series
+        resolvedSearchParams.series === "gt3open" || resolvedSearchParams.series === "rookie"
+            ? resolvedSearchParams.series
             : "all";
 
     return (
@@ -23,6 +25,32 @@ export default function SchedulePage({ searchParams }: SchedulePageProps) {
                     </p>
                 </div>
                 <div className="mt-10">
+                    <div className="mb-6 grid gap-3 md:grid-cols-2">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="text-xs tracking-widest text-zinc-400">GT3 OPEN</div>
+                            <div className="mt-2 text-sm text-zinc-200">
+                                前往 GT3 Open 专属赛程页面（含详细说明与高亮）。
+                            </div>
+                            <Link
+                                href="/gt3open/schedule"
+                                className="mt-3 inline-flex rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-zinc-100 hover:bg-white/10"
+                            >
+                                打开 GT3 Open 赛程
+                            </Link>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="text-xs tracking-widest text-zinc-400">ROOKIE</div>
+                            <div className="mt-2 text-sm text-zinc-200">
+                                前往新手赛专属赛程页面（含详细说明与高亮）。
+                            </div>
+                            <Link
+                                href="/rookie/schedule"
+                                className="mt-3 inline-flex rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-zinc-100 hover:bg-white/10"
+                            >
+                                打开 新手赛 赛程
+                            </Link>
+                        </div>
+                    </div>
                     <ScheduleClient initialFilter={initialFilter} />
                 </div>
             </section>

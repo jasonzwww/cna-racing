@@ -71,13 +71,13 @@ export default function GT3OpenOverviewPage() {
 
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <Link
-                                    href="/schedule?series=gt3open"
+                                    href="/gt3open/schedule"
                                     className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-950 hover:opacity-90"
                                 >
                                     View Schedule
                                 </Link>
                                 <Link
-                                    href="/standing?series=gt3open"
+                                    href="/gt3open/standings"
                                     className="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
                                 >
                                     Standings
@@ -127,12 +127,12 @@ export default function GT3OpenOverviewPage() {
                     <QuickCard
                         title="Schedule 赛程"
                         desc="所有轮次时间表，灰色为已结束的赛事"
-                        href="/schedule?series=gt3open"
+                        href="/gt3open/schedule"
                     />
                     <QuickCard
                         title="Standings 积分"
                         desc="车手 / 车队积分榜"
-                        href="/standing?series=gt3open"
+                        href="/gt3open/standings"
                     />
                     <QuickCard
                         title="Results 成绩"

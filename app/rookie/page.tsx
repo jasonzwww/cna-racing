@@ -59,7 +59,7 @@ export default function RookieOverviewPage() {
 
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <Link
-                                    href="/schedule?series=rookie"
+                                    href="/rookie/schedule"
                                     className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-950 hover:opacity-90"
                                 >
                                     View Schedule
@@ -71,7 +71,7 @@ export default function RookieOverviewPage() {
                                     Results
                                 </Link>
                                 <Link
-                                    href="/standing?series=rookie"
+                                    href="/rookie/standings"
                                     className="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
                                 >
                                     Standings
@@ -111,7 +111,7 @@ export default function RookieOverviewPage() {
             {/* QUICK LINKS */}
             <section className="mx-auto max-w-6xl px-6 py-12">
                 <div className="grid gap-4 md:grid-cols-3">
-                    <QuickCard title="Schedule 赛程" desc="所有轮次时间表" href="/schedule?series=rookie" />
+                    <QuickCard title="Schedule 赛程" desc="所有轮次时间表" href="/rookie/schedule" />
                     <QuickCard title="Results 成绩" desc="过往比赛结果" href="/rookie/results" />
                     <QuickCard title="Rules 规则" desc="新手友好规则说明" href="/rookie/rules" />
                 </div>

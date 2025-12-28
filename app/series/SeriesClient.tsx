@@ -28,9 +28,11 @@ function useCountdown(target: Date | null) {
 type SeriesCardProps = {
     series: (typeof seriesMeta)[number];
     upcoming?: (typeof scheduleData)[number];
+    scheduleHref: string;
+    standingsHref: string;
 };
 
-function SeriesCard({ series, upcoming }: SeriesCardProps) {
+function SeriesCard({ series, upcoming, scheduleHref, standingsHref }: SeriesCardProps) {
     const countdown = useCountdown(upcoming ? new Date(upcoming.start) : null);
 
     return (
@@ -67,13 +69,13 @@ function SeriesCard({ series, upcoming }: SeriesCardProps) {
                 </div>
                 <div className="flex flex-wrap gap-3">
                     <Link
-                        href={`/schedule?series=${series.key}`}
+                        href={scheduleHref}
                         className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
                     >
                         查看赛程
                     </Link>
                     <Link
-                        href={`/standing?series=${series.key}`}
+                        href={standingsHref}
                         className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-zinc-950 hover:opacity-90"
                     >
                         查看积分
@@ -90,14 +92,24 @@ export function SeriesClient() {
             const upcoming = scheduleData
                 .filter((race) => race.seriesKey === series.key)
                 .find((race) => new Date(race.start).getTime() > Date.now());
-            return { series, upcoming };
+            const scheduleHref =
+                series.key === "gt3open" ? "/gt3open/schedule" : "/rookie/schedule";
+            const standingsHref =
+                series.key === "gt3open" ? "/gt3open/standings" : "/rookie/standings";
+            return { series, upcoming, scheduleHref, standingsHref };
         });
     }, []);
 
     return (
         <div className="grid gap-6 lg:grid-cols-2">
-            {nextRaces.map(({ series, upcoming }) => (
-                <SeriesCard key={series.key} series={series} upcoming={upcoming} />
+            {nextRaces.map(({ series, upcoming, scheduleHref, standingsHref }) => (
+                <SeriesCard
+                    key={series.key}
+                    series={series}
+                    upcoming={upcoming}
+                    scheduleHref={scheduleHref}
+                    standingsHref={standingsHref}
+                />
             ))}
         </div>
     );
