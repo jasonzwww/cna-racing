@@ -116,6 +116,30 @@ export default function RookieOverviewPage() {
                     <QuickCard title="Rules 规则" desc="新手友好规则说明" href="/rookie/rules" />
                 </div>
             </section>
+
+            <section className="mx-auto max-w-6xl px-6 pb-16">
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+                    <div className="text-xs tracking-widest text-zinc-400">SERIES VISION</div>
+                    <h2 className="mt-2 text-2xl font-semibold text-white">新手友好理念</h2>
+                    <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+                        CNA 新手赛为初次参赛与回归车手打造，强调安全、学习与节奏培养。
+                        规则清晰、赛程紧凑，帮助大家建立稳定的比赛习惯。
+                    </p>
+                    <div className="mt-6 grid gap-4 md:grid-cols-3">
+                        <VisionCard title="安全优先" desc="比赛节奏适中，鼓励干净公平的对抗。" />
+                        <VisionCard title="清晰节奏" desc="固定格式与简化流程，降低学习成本。" />
+                        <VisionCard title="成长路线" desc="从新手赛逐步过渡到高阶系列赛。" />
+                    </div>
+                    <div className="mt-6">
+                        <Link
+                            href="/rookie/rules"
+                            className="inline-flex rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                        >
+                            查看完整规则 →
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
@@ -130,5 +154,14 @@ function QuickCard({ title, desc, href }: { title: string; desc: string; href: s
             <div className="mt-2 text-sm text-zinc-300 leading-relaxed">{desc}</div>
             <div className="mt-4 text-sm font-semibold text-zinc-100">Open →</div>
         </Link>
+    );
+}
+
+function VisionCard({ title, desc }: { title: string; desc: string }) {
+    return (
+        <div className="rounded-2xl border border-white/10 bg-zinc-950/40 p-5">
+            <div className="text-sm font-semibold text-white">{title}</div>
+            <div className="mt-2 text-sm text-zinc-300 leading-relaxed">{desc}</div>
+        </div>
     );
 }
