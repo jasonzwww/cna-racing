@@ -141,6 +141,31 @@ export default function GT3OpenOverviewPage() {
                     />
                 </div>
             </section>
+
+            {/* PHILOSOPHY */}
+            <section className="mx-auto max-w-6xl px-6 pb-16">
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+                    <div className="text-xs tracking-widest text-zinc-400">SERIES VISION</div>
+                    <h2 className="mt-2 text-2xl font-semibold text-white">竞赛理念与规则重点</h2>
+                    <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+                        GT3 Open 强调长距离节奏、策略分配与稳定性。官方规则会更新比赛格式、
+                        赛前准备、强制进站与裁判流程，确保每一站拥有一致的比赛体验。
+                    </p>
+                    <div className="mt-6 grid gap-4 md:grid-cols-3">
+                        <VisionCard title="耐力节奏" desc="多段赛程与强制进站，考验节奏与策略执行。" />
+                        <VisionCard title="官方裁判" desc="完整裁判机制与赛后复盘，保持公平竞争环境。" />
+                        <VisionCard title="赛季规划" desc="统一发布赛历、积分与规则更新，保障透明信息。" />
+                    </div>
+                    <div className="mt-6">
+                        <Link
+                            href="/gt3open/rules"
+                            className="inline-flex rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                        >
+                            查看完整规则 →
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
@@ -163,5 +188,14 @@ function QuickCard({
             <div className="mt-2 text-sm text-zinc-300 leading-relaxed">{desc}</div>
             <div className="mt-4 text-sm font-semibold text-zinc-100">Open →</div>
         </Link>
+    );
+}
+
+function VisionCard({ title, desc }: { title: string; desc: string }) {
+    return (
+        <div className="rounded-2xl border border-white/10 bg-zinc-950/40 p-5">
+            <div className="text-sm font-semibold text-white">{title}</div>
+            <div className="mt-2 text-sm text-zinc-300 leading-relaxed">{desc}</div>
+        </div>
     );
 }
