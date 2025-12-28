@@ -55,11 +55,25 @@ function timeAnyToMs(v: unknown): number | null {
     return Math.round(v / 10); // tick -> ms
 }
 
+/** iRacing JSON interval 单位是 1/10000 秒（0.1ms） */
+function iracingTickToMs(ticks: number) {
+    // 1 tick = 0.0001s = 0.1ms
+    return Math.round(ticks / 10);
+}
+
+/** gap: P1 WIN；P2/P3 显示与 P1 的差距（同组别优先 class_interval） */
 function gapToLeaderDisplay(row: any) {
-    const raw = row?.class_interval ?? row?.interval;
-    const ms = timeAnyToMs(raw);
-    if (ms === null) return "—";
-    if (ms === 0) return "WIN";
+    if (!row) return "—";
+
+    const ci = typeof row.class_interval === "number" ? row.class_interval : null;
+    const iv = typeof row.interval === "number" ? row.interval : null;
+    const ticks = ci ?? iv;
+
+    if (ticks === null) return "—";
+    if (ticks === -1) return "—";
+    if (ticks === 0) return "WIN";
+
+    const ms = iracingTickToMs(ticks);
     return `+${msToClock(ms)}`;
 }
 

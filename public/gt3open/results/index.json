@@ -4,7 +4,15 @@
     "title": "GT3 Open · Round 1 · Imola",
     "date": "2025-12-20",
     "track": "Imola",
-    "file": "/gt3open/results/82056585.json",
-    "cover": "/gt3open/covers/imola.png"
+    "file": "/gt3open/results/26s1r1_82056585.json",
+    "cover": "/tracks/imola.png"
+  },
+  {
+    "id": "82245347",
+    "title": "GT3 Open · Round 1 · SilverStone",
+    "date": "2025-12-27",
+    "track": "SilverStone",
+    "file": "/gt3open/results/26s1r2_82245347.json",
+    "cover": "/tracks/silverstone.png"
   }
 ]
