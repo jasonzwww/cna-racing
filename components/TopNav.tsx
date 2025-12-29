@@ -128,6 +128,17 @@ export function TopNav() {
                             >
                                 Home
                             </Link>
+                            <Link
+                                href="/drivers"
+                                className={[
+                                    "rounded-xl px-3 py-2 text-sm font-semibold transition",
+                                    isActive("/drivers")
+                                        ? "text-white bg-white/10"
+                                        : "text-zinc-300 hover:text-white hover:bg-white/5",
+                                ].join(" ")}
+                            >
+                                Drivers
+                            </Link>
 
                             {seriesList.map((s) => {
                                 const active = isActive(s.href);
@@ -238,6 +249,17 @@ export function TopNav() {
                                         ].join(" ")}
                                     >
                                         Home
+                                    </Link>
+                                    <Link
+                                        href="/drivers"
+                                        className={[
+                                            "mt-1 block rounded-xl px-3 py-2 text-sm font-semibold transition",
+                                            isActive("/drivers")
+                                                ? "bg-white/10 text-white"
+                                                : "text-zinc-300 hover:bg-white/5 hover:text-white",
+                                        ].join(" ")}
+                                    >
+                                        Drivers
                                     </Link>
 
                                     <div className="mt-2 text-[11px] tracking-widest text-zinc-400 px-3">
