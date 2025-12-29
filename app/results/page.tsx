@@ -17,92 +17,191 @@ export default async function ResultsPage() {
         })
     );
 
+    const activeSeasons = seriesResults.flatMap(({ series, seasons, order }) => {
+        const seasonOrder = order.length === 0 ? Array.from(seasons.keys()) : order;
+        const seasonName = seasonOrder[0];
+        if (!seasonName) return [];
+
+        const races = seasons.get(seasonName) ?? [];
+        const cover = races
+            .slice()
+            .sort((a, b) => {
+                const at = a.startTime ? Date.parse(a.startTime) : 0;
+                const bt = b.startTime ? Date.parse(b.startTime) : 0;
+                return bt - at;
+            })
+            .find((race) => race.entry.cover)?.entry.cover;
+        const standings = computeDriverStandings(races);
+        const leader = standings[0]?.driver ?? "—";
+        const secondary = standings[1]?.driver ?? "—";
+
+        return [
+            {
+                series,
+                seasonName,
+                leader,
+                secondary,
+                count: races.length,
+                cover: cover ?? series.heroImage,
+            },
+        ];
+    });
+
+    const historicalSeasons = seriesResults.flatMap(({ series, seasons, order }) => {
+        const seasonOrder = order.length === 0 ? Array.from(seasons.keys()) : order;
+        return seasonOrder.slice(1).map((seasonName, idx) => {
+            const races = seasons.get(seasonName) ?? [];
+            const standings = computeDriverStandings(races);
+            const leader = standings[0]?.driver ?? "—";
+            const cover = races
+                .slice()
+                .sort((a, b) => {
+                    const at = a.startTime ? Date.parse(a.startTime) : 0;
+                    const bt = b.startTime ? Date.parse(b.startTime) : 0;
+                    return bt - at;
+                })
+                .find((race) => race.entry.cover)?.entry.cover;
+
+            return {
+                series,
+                seasonName,
+                leader,
+                count: races.length,
+                label: idx === 0 ? "Winner" : "Archived",
+                cover: cover ?? series.heroImage,
+            };
+        });
+    });
+
     return (
-        <main className="min-h-screen bg-zinc-950 text-zinc-100">
-            <section className="mx-auto max-w-7xl px-6 py-12">
+        <main className="min-h-screen bg-[#070b1a] text-white">
+            <section className="mx-auto max-w-6xl px-6 py-16">
                 <div>
-                    <div className="text-xs tracking-widest text-zinc-400">CNA RESULTS</div>
-                    <h1 className="mt-2 text-3xl md:text-5xl font-semibold tracking-tight">赛季结果</h1>
-                    <p className="mt-2 text-zinc-300">
-                        当前赛季显示 Leader，过往赛季显示 Winner，点击可查看完整比赛概览与官方数据。
+                    <h1 className="text-4xl md:text-5xl font-semibold tracking-wide italic uppercase">
+                        Archives
+                    </h1>
+                    <p className="mt-3 text-sm md:text-base text-zinc-400">
+                        Manage current progress and revisit historical glory.
                     </p>
                 </div>
 
-                <div className="mt-10 space-y-10">
-                    {seriesResults.map(({ series, seasons, order }) => {
-                        const seasonOrder = order.length === 0 ? Array.from(seasons.keys()) : order;
-                        const seasonCards = seasonOrder.map((seasonName, idx) => {
-                            const races = seasons.get(seasonName) ?? [];
-                            const cover = races
-                                .slice()
-                                .sort((a, b) => {
-                                    const at = a.startTime ? Date.parse(a.startTime) : 0;
-                                    const bt = b.startTime ? Date.parse(b.startTime) : 0;
-                                    return bt - at;
-                                })
-                                .find((race) => race.entry.cover)?.entry.cover;
-                            const standings = computeDriverStandings(races);
-                            const leader = standings[0]?.driver ?? "—";
-                            const label = idx === 0 ? "Leader" : "Winner";
+                <div className="mt-12">
+                    <div className="flex items-center gap-3 text-lg font-semibold uppercase tracking-wide">
+                        <span className="text-red-500">⚡</span>
+                        <span>Active Seasons</span>
+                    </div>
 
-                            return {
-                                seasonName,
-                                label,
-                                leader,
-                                count: races.length,
-                                cover: cover ?? series.heroImage,
-                            };
-                        });
-
-                        return (
-                            <div key={series.key} className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <div className="text-xs tracking-widest text-zinc-400">{series.seriesName}</div>
-                                        <div className="text-lg font-semibold text-zinc-100">Season Results</div>
-                                    </div>
-                                    <Link
-                                        href={series.href}
-                                        className="rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10"
-                                    >
-                                        Series Page
-                                    </Link>
-                                </div>
-
-                                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                                    {seasonCards.length === 0 ? (
-                                        <div className="text-sm text-zinc-400">暂无结果数据</div>
-                                    ) : (
-                                        seasonCards.map((card) => (
-                                            <Link
-                                                key={card.seasonName}
-                                                href={`/results/${series.key}/${encodeURIComponent(card.seasonName)}`}
-                                                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/40 p-5 hover:bg-white/10 transition"
-                                            >
-                                                <div
-                                                    className="absolute inset-0 bg-cover bg-center opacity-25 transition group-hover:opacity-35"
-                                                    style={{ backgroundImage: `url('${card.cover}')` }}
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-transparent" />
-                                                <div className="relative">
-                                                    <div className="text-xs tracking-widest text-zinc-300">
-                                                        {card.label}
-                                                    </div>
-                                                    <div className="mt-2 text-lg font-semibold text-white">
-                                                        {card.seasonName}
-                                                    </div>
-                                                    <div className="mt-1 text-sm text-zinc-200">{card.leader}</div>
-                                                    <div className="mt-3 text-xs text-zinc-300">
-                                                        Races: {card.count}
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        ))
-                                    )}
-                                </div>
+                    <div className="mt-6 grid gap-6 md:grid-cols-2">
+                        {activeSeasons.length === 0 ? (
+                            <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-10 text-sm text-zinc-400">
+                                暂无进行中的赛季结果。
                             </div>
-                        );
-                    })}
+                        ) : (
+                            activeSeasons.map((card) => (
+                                <Link
+                                    key={`${card.series.key}-${card.seasonName}`}
+                                    href={`/results/${card.series.key}/${encodeURIComponent(card.seasonName)}`}
+                                    className="group relative overflow-hidden rounded-3xl border border-red-500/40 bg-white/5 p-8 shadow-[0_0_30px_rgba(220,38,38,0.15)] transition hover:border-red-500/70"
+                                >
+                                    <div
+                                        className="absolute inset-0 bg-cover bg-center opacity-10 transition group-hover:opacity-25"
+                                        style={{ backgroundImage: `url('${card.cover}')` }}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#0b132a]/90 via-[#0b132a]/80 to-transparent" />
+                                    <div className="relative space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-600/90 text-xl">
+                                                ⏱️
+                                            </div>
+                                            <div className="rounded-full bg-red-600/90 px-3 py-1 text-xs font-semibold uppercase tracking-widest">
+                                                Live
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="text-sm uppercase tracking-[0.25em] text-zinc-400">
+                                                {card.series.seriesName}
+                                            </div>
+                                            <div className="mt-2 text-2xl font-semibold italic">
+                                                {card.seasonName}
+                                            </div>
+                                            <div className="mt-2 text-xs uppercase tracking-widest text-zinc-400">
+                                                Ongoing
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-2xl border border-white/10 bg-[#0c142b]/80 px-5 py-4">
+                                            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+                                                Current Leaders
+                                            </div>
+                                            <div className="mt-3 space-y-2 text-sm font-semibold">
+                                                <div className="flex items-center justify-between text-zinc-100">
+                                                    <span className="flex items-center gap-2">
+                                                        <span className="text-red-500">⚡</span>
+                                                        {card.leader}
+                                                    </span>
+                                                    <span className="text-xs text-zinc-400">P1</span>
+                                                </div>
+                                                <div className="flex items-center justify-between text-zinc-200">
+                                                    <span className="flex items-center gap-2">
+                                                        <span className="text-red-500">⚡</span>
+                                                        {card.secondary}
+                                                    </span>
+                                                    <span className="text-xs text-zinc-400">P2</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-400">
+                                            Track Progress <span className="text-base">›</span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                <div className="mt-16">
+                    <div className="flex items-center gap-3 text-lg font-semibold uppercase tracking-wide">
+                        <span className="text-zinc-500">↺</span>
+                        <span>Historical Records</span>
+                    </div>
+
+                    <div className="mt-6 grid gap-6 md:grid-cols-2">
+                        {historicalSeasons.length === 0 ? (
+                            <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-10 text-sm text-zinc-400">
+                                暂无已归档赛季。
+                            </div>
+                        ) : (
+                            historicalSeasons.map((card) => (
+                                <Link
+                                    key={`${card.series.key}-${card.seasonName}`}
+                                    href={`/results/${card.series.key}/${encodeURIComponent(card.seasonName)}`}
+                                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:border-white/20"
+                                >
+                                    <div
+                                        className="absolute inset-0 bg-cover bg-center opacity-10 transition group-hover:opacity-20"
+                                        style={{ backgroundImage: `url('${card.cover}')` }}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#0b132a]/90 via-[#0b132a]/70 to-transparent" />
+                                    <div className="relative">
+                                        <div className="flex items-center justify-between text-xs uppercase tracking-widest text-zinc-400">
+                                            <span>{card.label}</span>
+                                            <span>{card.series.seriesName}</span>
+                                        </div>
+                                        <div className="mt-4 text-2xl font-semibold italic">
+                                            {card.seasonName}
+                                        </div>
+                                        <div className="mt-2 text-sm text-zinc-300">{card.leader}</div>
+                                        <div className="mt-4 text-xs uppercase tracking-widest text-zinc-500">
+                                            Races {card.count}
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))
+                        )}
+                    </div>
                 </div>
             </section>
         </main>
